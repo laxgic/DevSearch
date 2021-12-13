@@ -1,0 +1,11 @@
+{% extends 'main.html' %}
+
+{% block content %}
+    <h2>Delete the project:</h2>
+    <p>Do you really want to delete the "{{ project.title }}"?</p>
+    <form action="" method="POST">
+        {% csrf_token %}
+        <input type="submit">
+    </form>
+    
+{% endblock content %}

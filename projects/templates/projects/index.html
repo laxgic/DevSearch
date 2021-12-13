@@ -1,0 +1,28 @@
+{% extends 'main.html' %}
+
+{% block content %}
+    <br>
+    <h2>Wellcome to the index page!</h2>
+    <br>
+    <table>
+        <tr>
+            <th>title</th>
+            <th>Description</th>
+            <th>Total vote</th>
+            <th>Vote ratio</th>
+        </tr>
+        {% for project in object_list %}
+            <tr>
+                <td>{{ project.title }}</td>
+                <td>{{ project.description }}</td>
+                <td>{{ project.total_vote }}</td>
+                <td>{{ project.vote_ratio }}</td>
+                <td><a href="{% url 'projects:detail' project.id %}">View</a></td>
+                <td><a href="{% url 'projects:update-project' project.id %}">edit</a></td>
+                <td><a href="{% url 'projects:delete-project' p_uuid=project.id %}">delete</a></td>
+            </tr>
+        {% endfor %}
+    </table>
+    <br>
+    <a href="{% url 'projects:create-project' %}">Add a new one</a>
+{% endblock content %}

@@ -1,0 +1,14 @@
+{% extends 'main.html' %}
+
+{% block content %}
+    <h1>{{ project.title }}</h1>
+    <p>{{ project.description }}</p>
+    {% for tag in project.tags.all %}
+        <button>{{ tag.name }}</button>
+    {% endfor %}
+    <h2>Reviews:</h2>
+    {% for review in project.review_set.all %}
+    <p>{{ review.body }}</p>
+    <p>{{ review.value }}</p>
+    {% endfor %}
+{% endblock %}
