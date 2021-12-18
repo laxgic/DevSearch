@@ -1,0 +1,28 @@
+import uuid
+
+from django.db import models
+from django.contrib.auth.models import User
+
+
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=200, blank=True)
+    username = models.CharField(max_length=200, blank=True)
+    email = models.EmailField()
+    short_intro = models.CharField(max_length=200, blank=True)
+    bio = models.TextField(blank=True)
+    profile_image = models.ImageField(default='users/default_profile.png', upload_to='users/profiles/')
+    social_twitter = models.URLField(blank=True)
+    social_linkedin = models.URLField(blank=True)
+    social_youtube = models.URLField(blank=True)
+    social_website = models.URLField(blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False, primary_key=True)
+
+
+    def __str__(self):
+        return str(self.user.username)
+
+
