@@ -1,6 +1,6 @@
-from django.db.models.query import RawQuerySet
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import generic
+from django.contrib.auth.decorators import login_required
 
 from projects import models
 from .forms import ProjectForm
@@ -17,6 +17,7 @@ class ProjectDetailView(generic.DetailView):
     context_object_name = 'project'
 
 
+@login_required(login_url='users:login_user')
 def createproject(requeset):
     form = ProjectForm()
 
@@ -33,6 +34,7 @@ def createproject(requeset):
     return render(requeset, 'projects/project_form.html', context)
 
 
+@login_required(login_url='users:login_user')
 def updateproject(request, p_uuid):
     project = get_object_or_404(models.Project, id=p_uuid)
     form = ProjectForm(instance=project)
@@ -49,6 +51,7 @@ def updateproject(request, p_uuid):
     return render(request, 'projects/project_form.html', context)
 
 
+@login_required(login_url='users:login_user')
 def deleteproject(request, p_uuid):
     project = get_object_or_404(models.Project, id=p_uuid)
 
