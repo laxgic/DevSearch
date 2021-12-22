@@ -10,6 +10,7 @@ def create_profile(sender, instance, created, **kwargs):
         # print(30*'#' + 'Create Profile' + 30*'#')
         Profile.objects.create(
             user = instance,
+            name = instance.first_name,
             username = instance.username,
             email = instance.email
         )

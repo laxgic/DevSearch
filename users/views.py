@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 
 from .models import Profile
-
+from .forms import CustomUserCreationForm
 
 
 def all_profiles(request):
@@ -49,8 +49,9 @@ def login_user(request):
         else:
             messages.error(request, 'Username or password is incorrect')
             return redirect('users:login_user')
-    
-    return render(request, 'users/login_register.html')
+
+    context = {'page': 'login'}
+    return render(request, 'users/login_register.html', context)
 
 
 def logout_user(request):
@@ -59,3 +60,21 @@ def logout_user(request):
         messages.error(request, 'User was logged out!')
         return redirect('users:login_user')
 
+
+def register_user(request):
+    form = CustomUserCreationForm()
+
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.username = user.username.lower()
+            user.save()
+            login(request, user)
+            messages.success(request, "User account was created!")
+            return redirect('users:login_user')
+        else:
+            messages.error(request, 'An error occurred during registration')
+
+    context = {'page': 'register', 'form': form}
+    return render(request, 'users/login_register.html', context)
