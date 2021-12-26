@@ -21,3 +21,15 @@ def delete_user(instance, **kwargs):
     # print(30*'#' + 'Delete Profile' + 30*'#')
     user_obj = instance.user
     user_obj.delete()
+
+
+
+@receiver(post_save, sender=Profile)
+def update_user(instance, created, **kwargs):
+    profile = instance
+    user = profile.user
+    if created == False:
+        user.first_name = profile.name
+        user.username = profile.username
+        user.email = profile.email
+        user.save()

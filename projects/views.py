@@ -24,8 +24,11 @@ def createproject(requeset):
     if requeset.method == "POST":
         form = ProjectForm(requeset.POST, files=requeset.FILES)
         if form.is_valid():
-            form.save()
-            return redirect('projects:index')
+            profile = requeset.user.profile
+            project = form.save(commit=False)
+            project.owner = profile
+            project.save()
+            return redirect('users:user_account')
 
     context = {
         'form': form
@@ -36,14 +39,15 @@ def createproject(requeset):
 
 @login_required(login_url='users:login_user')
 def updateproject(request, p_uuid):
-    project = get_object_or_404(models.Project, id=p_uuid)
+    profile = request.user.profile
+    project = get_object_or_404(profile.project_set, id=p_uuid)
     form = ProjectForm(instance=project)
 
     if request.method == "POST":
         form = ProjectForm(request.POST, files=request.FILES, instance=project)
         if form.is_valid():
             form.save()
-            return redirect('projects:index')
+            return redirect('users:user_account')
 
     context = {
         'form': form
@@ -53,11 +57,11 @@ def updateproject(request, p_uuid):
 
 @login_required(login_url='users:login_user')
 def deleteproject(request, p_uuid):
-    project = get_object_or_404(models.Project, id=p_uuid)
-
+    profile = request.user.profile
+    project = get_object_or_404(profile.project_set, id=p_uuid)
     if request.method == "POST":
         project.delete()
-        return redirect('projects:index')
+        return redirect('users:user_account')
 
     context = {
         'project': project
