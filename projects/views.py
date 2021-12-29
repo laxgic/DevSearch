@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import generic
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 
 from projects import models
 from .forms import ProjectForm
@@ -9,6 +10,26 @@ from .forms import ProjectForm
 class ProjectIndexView(generic.ListView):
     model = models.Project
     template_name = 'projects/index.html'
+
+    def get_queryset(self, *args, **kwargs):
+        search_query = self.request.GET.get('search_query')
+        if search_query:
+            projects = models.Project.objects.filter(
+                Q(title__icontains=search_query) |
+                Q(description__icontains=search_query) |
+                Q(owner__name__icontains=search_query) |
+                Q(tags__name__icontains=search_query)
+            ).distinct()
+            return projects
+        else:
+            projects = super().get_queryset(*args, **kwargs)
+            return projects
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['search_query'] = self.request.GET.get('search_query') or ''
+        return context
+
 
 
 class ProjectDetailView(generic.DetailView):

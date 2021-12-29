@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 
 from .models import Profile
 from .forms import CustomUserCreationForm, ProfileForm, SkillForm
@@ -11,9 +12,19 @@ from .forms import CustomUserCreationForm, ProfileForm, SkillForm
 
 
 def all_profiles(request):
-    profiles = Profile.objects.all()
+    search_query = request.GET.get('search_query') or ''
+    if search_query:
+        profiles = Profile.objects.filter(
+            Q(name__icontains=search_query) |
+            Q(short_intro__icontains=search_query) |
+            Q(skill__name__iexact=search_query)
+        ).distinct()
+    else:
+        profiles = Profile.objects.all()
+
     context = {
-        'profiles': profiles
+        'profiles': profiles,
+        'search_query': search_query
     }
     return render(request, 'users/profiles.html', context)
 
