@@ -3,18 +3,19 @@ from django.views import generic
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 
-from projects import models
+from projects.models import Project
 from .forms import ProjectForm
 
 
 class ProjectIndexView(generic.ListView):
-    model = models.Project
+    model = Project
+    paginate_by = 6
     template_name = 'projects/index.html'
 
     def get_queryset(self, *args, **kwargs):
         search_query = self.request.GET.get('search_query')
         if search_query:
-            projects = models.Project.objects.filter(
+            projects = Project.objects.filter(
                 Q(title__icontains=search_query) |
                 Q(description__icontains=search_query) |
                 Q(owner__name__icontains=search_query) |
@@ -33,7 +34,7 @@ class ProjectIndexView(generic.ListView):
 
 
 class ProjectDetailView(generic.DetailView):
-    model = models.Project
+    model = Project
     template_name = 'projects/project_detail.html'
     context_object_name = 'project'
 

@@ -58,21 +58,22 @@
       </div>
     </section>
 
+    <!-- PAGINATION -->
     <div class="pagination">
       <ul class="container">
-        <li><a href="#" class="btn btn--disabled">&#10094; Prev</a></li>
-        <li><a href="#" class="btn btn--sub">01</a></li>
-        <li><a href="#" class="btn">02</a></li>
-        <li><a href="#" class="btn">03</a></li>
-        <li><a href="#" class="btn">04</a></li>
-        <li><a href="#" class="btn">05</a></li>
-        <li><a href="#" class="btn">06</a></li>
-        <li><a href="#" class="btn">07</a></li>
-        <li><a href="#" class="btn">08</a></li>
-        <li><a href="#" class="btn">09</a></li>
-        <li><a href="#" class="btn">10</a></li>
-        <li><a href="#" class="btn">Next &#10095;</a></li>
+        {% if profiles.has_previous %}
+          <li><a href="?page={{ profiles.previous_page_number }}&search_query={{ search_query }}" class="btn">&#10094; Prev</a></li>
+        {% endif %}
+        
+        {% for i in page_range %}
+          <li><a href="?page={{ i }}&search_query={{ search_query }}" class="btn {% if profiles.number == i %} btn--sub {% endif %}">{{ i }}</a></li>
+        {% endfor %}
+
+        {% if profiles.has_next %}
+          <li><a href="?page={{ profiles.next_page_number }}&search_query={{ search_query }}" class="btn">Next &#10095;</a></li>
+        {% endif %}
       </ul>
     </div>
+
   </main>
 {% endblock content %}

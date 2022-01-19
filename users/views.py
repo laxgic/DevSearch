@@ -5,26 +5,56 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from .models import Profile
 from .forms import CustomUserCreationForm, ProfileForm, SkillForm
 
 
+def my_paginator(request, query_set):
+    requested_page_num = request.GET.get('page')
+    paginator_obj = Paginator(query_set, per_page=6)
+    try:
+        page = paginator_obj.page(requested_page_num)
+    except PageNotAnInteger:
+        page = paginator_obj.page(number=1)
+    except EmptyPage:
+        page_num = paginator_obj.num_pages
+        page = paginator_obj.page(number=page_num)
+    
+    start_index = page.number - 2
+    if start_index < 1:
+        start_index = 1
+
+    end_index = page.number + 2
+    if end_index > paginator_obj.num_pages:
+        end_index = paginator_obj.num_pages
+
+    page_range = range(start_index, end_index+1)
+
+    return page, page_range
+
 
 def all_profiles(request):
     search_query = request.GET.get('search_query') or ''
+
     if search_query:
         profiles = Profile.objects.filter(
             Q(name__icontains=search_query) |
             Q(short_intro__icontains=search_query) |
             Q(skill__name__iexact=search_query)
         ).distinct()
+
     else:
         profiles = Profile.objects.all()
+    
+    # pagination the profiles
+    profiles, page_range = my_paginator(request, profiles)
 
     context = {
         'profiles': profiles,
-        'search_query': search_query
+        'search_query': search_query,
+        'page_range': page_range
     }
     return render(request, 'users/profiles.html', context)
 
