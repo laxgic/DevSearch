@@ -2,9 +2,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views import generic
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from django.contrib import messages
 
 from projects.models import Project
-from .forms import ProjectForm
+from .forms import ProjectForm, ReviewForm
 
 
 class ProjectIndexView(generic.ListView):
@@ -33,10 +34,28 @@ class ProjectIndexView(generic.ListView):
 
 
 
-class ProjectDetailView(generic.DetailView):
-    model = Project
-    template_name = 'projects/project_detail.html'
-    context_object_name = 'project'
+def project_detail(request, pk):
+    project = get_object_or_404(Project, id=pk)
+    form = ReviewForm()
+
+    if request.method == 'POST':
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review_obj = form.save(commit=False)
+            review_obj.owner = request.user.profile
+            review_obj.project = project
+            review_obj.save()
+            project.refresh_votes
+            messages.success(request, 'Your review successfully added!')
+            return redirect('projects:detail', pk=pk)
+
+
+    context = {
+        'project': project,
+        'form': form
+    }
+    return render(request, 'projects/project_detail.html', context)
+
 
 
 @login_required(login_url='users:login_user')

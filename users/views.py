@@ -88,7 +88,7 @@ def login_user(request):
         user = authenticate(request, username=uname, password=upwd)
         if user:
             login(request, user)
-            return redirect('users:profiles')
+            return redirect(request.GET['next'] if 'next' in request.GET else 'users:user_account')
         else:
             messages.error(request, 'Username or password is incorrect')
             return redirect('users:login_user')
