@@ -20,5 +20,10 @@ urlpatterns = [
     # user skills
     path('add_skill/', views.add_skill, name='add_skill'),
     path('update_skill/<slug:pk>/', views.update_skill, name='update_skill'),
-    path('delete_skill/<slug:pk>/', views.delete_skill, name='delete_skill'),   
+    path('delete_skill/<slug:pk>/', views.delete_skill, name='delete_skill'),  
+
+    # user messages
+    path('inbox/', views.inbox, name='inbox'),
+    path('message/<slug:pk>/', views.single_message, name='single_message'),
+    path('send-message/<slug:recipient_pk>', views.send_message, name='send_message'),
 ]

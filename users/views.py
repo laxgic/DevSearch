@@ -7,8 +7,8 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
-from .models import Profile
-from .forms import CustomUserCreationForm, ProfileForm, SkillForm
+from .models import Profile, Message
+from .forms import CustomUserCreationForm, ProfileForm, SkillForm, MessageForm
 
 
 def my_paginator(request, query_set):
@@ -197,3 +197,50 @@ def delete_skill(request, pk):
 
     context = {'skill': skill}
     return render(request, 'users/delete_skill.html', context)
+
+
+@login_required(login_url='users:login_user')
+def inbox(request):
+    profile = request.user.profile
+    all_messages = profile.recipient_messages.all()
+    unread_count = all_messages.filter(is_read=False).count()
+
+    context = {'all_messages': all_messages, 'unread_count': unread_count}
+    return render(request, 'users/inbox.html', context)
+
+
+@login_required(login_url='users:login_user')
+def single_message(request, pk):
+    user_messages = request.user.profile.recipient_messages.all()
+    requested_message = get_object_or_404(user_messages, id=pk)
+    if requested_message.is_read == False:
+        requested_message.is_read = True
+        requested_message.save()
+    
+    context = {'message': requested_message}
+    return render(request, 'users/message.html', context)
+
+
+def send_message(request, recipient_pk):
+    recipient = get_object_or_404(Profile, id=recipient_pk)
+    form = MessageForm()
+    if request.method == 'POST':
+        form = MessageForm(request.POST)
+        if form.is_valid():
+            message_obj = form.save(commit=False)
+            if request.user.is_authenticated:
+                message_obj.sender = request.user.profile
+                message_obj.name = request.user.profile.name
+                message_obj.email = request.user.profile.email
+            
+            message_obj.recipient = recipient
+            message_obj.save()
+            # show the success message
+            messages.success(request, 'message sent successfuly!')
+            return redirect('users:single_profile', recipient_pk)
+        
+        else:
+            messages.error(request, 'Something is worng!')
+            
+    context = {'form': form, 'recipient_id': recipient.id}
+    return render(request, 'users/messageform.html', context)
