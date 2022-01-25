@@ -10,3 +10,6 @@ venv/
 
 # Images #
 images/*
+
+# sensitive data #
+core/sensdata.py

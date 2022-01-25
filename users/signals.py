@@ -1,6 +1,8 @@
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.contrib.auth.models import User
+from django.core.mail import send_mail
+from django.conf import settings
 
 from .models import Profile
 
@@ -8,11 +10,21 @@ from .models import Profile
 def create_profile(sender, instance, created, **kwargs):
     if created:
         # print(30*'#' + 'Create Profile' + 30*'#')
-        Profile.objects.create(
+        profile = Profile.objects.create(
             user = instance,
             name = instance.first_name,
             username = instance.username,
             email = instance.email
+        )
+
+        subject = 'Welcome to this Website!'
+        message = 'We are glad you are here.'
+        send_mail(
+            subject,
+            message,
+            settings.EMAIL_HOST_USER,
+            [profile.email],
+            fail_silently=False,
         )
 
 
